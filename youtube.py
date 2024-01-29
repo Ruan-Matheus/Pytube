@@ -7,19 +7,16 @@ import re
 
 # TODO: Subtitles
 def downlaod_youtube(url, path = '.', mp3 = False, hd = True, caption = None):
-    
-    '''Download a single video/music from YouTube.
-    
-    :param url: The URL of the YouTube video
-    :type url: str
-    :param path: The path of a folder on your computer (default is current directory)
-    :type path: str
-    :param mp3: A flag indicating if the video should be converted to mp3 extension (default is False)
-    :type mp3: bool
-    :param hd: A flag indicating to download the highest video resolution available (default is True)
-    :returns None 
-    '''
-    
+    """Download a single video/music from YouTube.
+
+    Args:
+        url (_type_): The URL of the YouTube video
+        path (str, optional): The path of a folder on your computer. Defaults to '.'.
+        mp3 (bool, optional): A flag indicating if the video should be converted to mp3 extension. Defaults to False.
+        hd (bool, optional):  A flag indicating to download the highest video resolution available. Defaults to True.
+        caption (str, optional): The code of languague captions. Defaults to None.
+    """
+
     # Saving the current path to return to it later
     old_path = os.getcwd()
     
@@ -31,22 +28,26 @@ def downlaod_youtube(url, path = '.', mp3 = False, hd = True, caption = None):
     try:
         yt = YouTube(url, on_progress_callback=print_progress)
         yt.bypass_age_gate()
-        
+
+        # TODO: There is an error here. If there's no
+        # substituiton re.sub throws an error!
         pattern = re.compile(r"[\\/:*?\"<>|\.,#]")
         video_title = yt.title
         video_title = re.sub(pattern, "", video_title)
         
         # Downloading the caption
         if caption:
-                caption = yt.captions[caption]
-                caption.xml_captions
-                caption = caption.generate_srt_captions()
+                try:
+                    caption = yt.captions[caption]
+                    caption.xml_captions
+                    caption = caption.generate_srt_captions()
 
-                with open(video_title + '.srt', 'w', encoding= 'UTF8') as f:
-                    f.write(caption)
+                    with open(video_title + '.srt', 'w', encoding= 'UTF8') as f:
+                        f.write(caption)
+                except KeyError:
+                    print("Caption not available for the mentioned code!")
         
-        
-        print(f"Video name: {yt.title}\n".center(35))
+        print(f"\nVideo name: {yt.title}\n".center(35))
         
         # Selecting the stream with the mp3 and hd arguments
         if mp3:
@@ -77,20 +78,19 @@ def downlaod_youtube(url, path = '.', mp3 = False, hd = True, caption = None):
     os.chdir(old_path)
 
 
+
 def print_progress(stream, chunk, bytes_remaining):
     size = stream.filesize
     percent = (100 * (size - bytes_remaining)) / size
     print(f"Download Progress: {percent:.2f}%", end='\r')
 
 
-
-
-
-
-
 # Example usage    
-def teste():
-    path = r'C:\Users\Ruan\Desktop\Youtube\test'
-    url = r'https://www.youtube.com/watch?v=qxPMmW93eDs&list=PLu0W_9lII9agwh1XjRt242xIpHhPT2llg&index=5&ab_channel=CodeWithHarry'
-    downlaod_youtube(url, caption='en-IN')
-teste()
+def main():
+    # Tratar as leegndesas se indisponivel
+    path = r'C:\Users\Ruan\Documents\Codes\Python\Pytube\tkinter'
+    url = r'https://www.youtube.com/watch?v=TuLxsvK4svQ&t=1258s&pp=ygUHdGtpbnRlcg%3D%3D'
+    downlaod_youtube(url, path)
+
+if __name__ == '__main__':
+    main()

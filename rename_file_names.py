@@ -2,7 +2,7 @@ import os
 import re
 
 
-def order_videos_names(path, pattern, file_extension = '.mp4'):
+def order_files_names(path, pattern, file_extension = '.mp4'):
     names_error = {}
     os.chdir(path)
     file_list = os.listdir()
@@ -18,4 +18,10 @@ def order_videos_names(path, pattern, file_extension = '.mp4'):
     print(f"\nProcessamento Concluído. \nHouve {len(names_error)} erros")
     if names_error:
         print(names_error)
+
+
+
+def main():
+    path = r'C:\Users\Ruan\Videos\Python - Cópia'
+    pattern =  re.compile(r"(.*Day )(\d+\.mp4)")
     
