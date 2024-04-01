@@ -87,9 +87,10 @@ def print_progress(stream, chunk, bytes_remaining):
 
 # Example usage    
 def main():
-    # Tratar as leegndesas se indisponivel
-    path = r'C:\Users\Ruan\Documents\Codes\Python\Pytube\tkinter'
-    url = r'https://www.youtube.com/watch?v=TuLxsvK4svQ&t=1258s&pp=ygUHdGtpbnRlcg%3D%3D'
+    # Tratar as legendas se indisponivel
+    # Tratar age restriction error
+    path = r'C:\Users\Ruan\Desktop'
+    url = r'https://www.youtube.com/watch?v=V3OPDTwH9os'
     downlaod_youtube(url, path)
 
 if __name__ == '__main__':
