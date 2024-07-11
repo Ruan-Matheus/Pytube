@@ -1,6 +1,8 @@
 from tkinter import *
 from tkinter import filedialog
 import youtube
+import playlist
+import re
 
 
 def browser():
@@ -13,8 +15,22 @@ def browser():
 def download():
     diretorio = path.get()
     link = url.get()
-    if (diretorio and link):
-        youtube.downlaod_youtube(link, diretorio, hd = True)
+    
+    if not link or not diretorio:
+        return
+
+    regex_video = re.compile(r"https:\/\/www\.youtube\.com\/watch\?v=")
+    regex_playlist = re.compile(r"https:\/\/www\.youtube\.com/playlist\?list=")
+
+
+    if (regex_video.findall(link)):
+        youtube.downlaod_youtube(link, diretorio, hd=True)
+
+    elif (regex_playlist.findall(link)):
+        playlist.download_playlist(diretorio, link, mp3=False, hd=True)
+
+    # Link invalido
+    return
 
 
 window = Tk() # Instatiate an instace of a window
