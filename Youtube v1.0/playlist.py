@@ -57,6 +57,10 @@ def download_playlist(path: str, url: str, mp3 = False, hd = False):
 
 
 def teste():
-    path = r'C:\Users\Ruan\Music\Viole3'
-    url = r'https://www.youtube.com/playlist?list=PLzMcBGfZo4-n40rB1XaJ0ak1bemvlqumQ'
-    download_playlist(path, url, mp3 = True)
+    path = r'/home/viole/Videos'
+    url = r'https://www.youtube.com/playlist?list=PL0A4476774282BD43'
+    download_playlist(path, url, mp3 = False)
+
+
+if __name__ == "__main__":
+    teste()

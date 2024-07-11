@@ -87,8 +87,8 @@ def print_progress(stream, chunk, bytes_remaining):
 # Example usage    
 def teste():
     # Tratar as leegndesas se indisponivel
-    path = r'C:\Users\Ruan\Documents\Codes\Python\Pytube\tkinter'
-    url = r'https://www.youtube.com/watch?v=TuLxsvK4svQ&t=1258s&pp=ygUHdGtpbnRlcg%3D%3D'
+    path = r'/home/viole/Videos'
+    url = r'https://www.youtube.com/watch?v=YthChN1Wq8M&pp=ygUMZWRlbiB3YWtlIHVw'
     downlaod_youtube(url, path)
 
 if __name__ == '__main__':
