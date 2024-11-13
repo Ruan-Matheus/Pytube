@@ -1,11 +1,13 @@
 from tkinter import *
 from tkinter import filedialog
 import youtube
+import playlist
+import re
 
 
 def browser():
     path = filedialog.askdirectory()
-    #path_entry.clear # or something loke this
+    path_entry.delete(0, END)
     path_entry.insert(0, path)
     return path
 
@@ -13,13 +15,28 @@ def browser():
 def download():
     diretorio = path.get()
     link = url.get()
-    youtube.downlaod_youtube(link, diretorio)
+    
+    if not link or not diretorio:
+        return
+
+    regex_video = re.compile(r"https:\/\/www\.youtube\.com\/watch\?v=")
+    regex_playlist = re.compile(r"https:\/\/www\.youtube\.com/playlist\?list=")
+
+
+    if (regex_video.findall(link)):
+        youtube.downlaod_youtube(link, diretorio, hd=True)
+
+    elif (regex_playlist.findall(link)):
+        playlist.download_playlist(diretorio, link, mp3=False, hd=True)
+
+    # Link invalido
+    return
 
 
 window = Tk() # Instatiate an instace of a window
 window.title("YouTube Video Downloader")
-window.geometry("700x500")
-window.config(background= 'white') #'#0d1124'
+window.geometry("700x200")
+window.config(background= 'white')
 window.resizable(False, False)
 
 icon = PhotoImage(file = 'img.png')
@@ -33,8 +50,7 @@ path = StringVar()
 url_label = Label(window, 
             text="URL:   ",
             font= ("Ariel", 10, 'bold'),
-            relief= RAISED,
-            bd= 10,
+            bd= 5,
             padx= 5,
             height= 1)
 url_label.place(x= 5, y = 10)
@@ -47,14 +63,12 @@ url_entry.focus()
 path_label = Label(window,
                  text="PATH: ",
                  font=("Ariel", 10, 'bold'),
-                 #relief=RAISED,
-                 bd = 10,
+                 bd = 5,
                  padx= 5)
 path_label.place(x = 5, y = 50)
 
 path_entry = Entry(window,
                    font=("Ariel", 10, "normal"),
-                   relief= RAISED,
                    #border= 20,
                    textvariable= path)
 path_entry.place(x = 100, y = 60, width=470, height=20)
@@ -70,7 +84,7 @@ searchButton.place(x = 600, y = 55)
 
 
 downloadButton = Button(window, text= "Download", command= download)
-downloadButton.pack()
+downloadButton.place(x=300, y=150)
 
 
 
