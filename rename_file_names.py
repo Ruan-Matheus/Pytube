@@ -19,9 +19,3 @@ def order_files_names(path, pattern, file_extension = '.mp4'):
     if names_error:
         print(names_error)
 
-
-
-def main():
-    path = r'C:\Users\Ruan\Videos\Python - Cópia'
-    pattern =  re.compile(r"(.*Day )(\d+\.mp4)")
-    
