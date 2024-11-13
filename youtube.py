@@ -1,36 +1,33 @@
-import os
-from pytube import YouTube
-from pytube.exceptions import VideoUnavailable
 from change_files_extension import convert_ext as cext
+import os
+from pytubefix import YouTube, Channel
+from pytubefix.exceptions import VideoUnavailable
+from pytubefix.cli import on_progress
 import re
+from subprocess import run
 
 
 # TODO: Subtitles
-def downlaod_youtube(url, path = '.', mp3 = False, hd = True, caption = None):
-    """Download a single video/music from YouTube.
+def download_youtube(url, path = '.', mp3 = False, hd = True, caption = None, ffmpeg_path="ffmpeg") -> None:
+    """Download a single video/music from YouTube with flexible FFmpeg path and unique file naming.
 
     Args:
-        url (_type_): The URL of the YouTube video
-        path (str, optional): The path of a folder on your computer. Defaults to '.'.
-        mp3 (bool, optional): A flag indicating if the video should be converted to mp3 extension. Defaults to False.
-        hd (bool, optional):  A flag indicating to download the highest video resolution available. Defaults to True.
-        caption (str, optional): The code of languague captions. Defaults to None.
+        url (string): The URL of the YouTube video
+        path (str, optional): The download folder path. Defaults to '.'.
+        mp3 (bool, optional): Convert video to mp3. Defaults to False.
+        hd (bool, optional): Download the highest resolution available. Defaults to True.
+        caption (str, optional): Language code for captions. Defaults to None.
+        ffmpeg_path (str, optional): Path to ffmpeg executable, defaults to "ffmpeg" in system path.
     """
 
-    # Saving the current path to return to it later
     old_path = os.getcwd()
-    
-    # TODO: Context manager?
     os.chdir(path)
-    
-    erro = []
-    
+   
     try:
-        yt = YouTube(url, on_progress_callback=print_progress)
-        yt.bypass_age_gate()
+        yt = YouTube(url, on_progress_callback=on_progress)
 
-        # TODO: There is an error here. If there's no
-        # substituiton re.sub throws an error!
+        # TODO: There is an error here. If there's no substituiton re.sub throws an error!
+        # Windows doesnt allow files with certain characters
         pattern = re.compile(r"[\\/:*?\"<>|\.,#]")
         video_title = yt.title
         video_title = re.sub(pattern, "", video_title)
@@ -47,51 +44,37 @@ def downlaod_youtube(url, path = '.', mp3 = False, hd = True, caption = None):
                 except KeyError:
                     print("Caption not available for the mentioned code!")
         
+
         print(f"\nVideo name: {yt.title}\n".center(35))
-        
-        # Selecting the stream with the mp3 and hd arguments
+
         if mp3:
             yt.streams.get_audio_only().download()
+            cext(".mp4", ".mp3")
+
         elif hd:
-            yt.streams.get_highest_resolution().download()
+            # Video and audio comes separately, if needed a higher resolution
+            video_stream = yt.streams.get_highest_resolution(progressive=False)
+            audio_stream = yt.streams.get_audio_only()
+
+            video_stream.download(filename='video.mp4')
+            audio_stream.download(filename='audio.mp4')
+
+            # Using ffmpeg to merge the video and audio files
+            ffmpeg_command = f'{ffmpeg_path} -i "video.mp4" -i "audio.mp4" -c copy "{video_title}.mp4"'
+            run(ffmpeg_command, shell= True)
+
+            os.remove('video.mp4')
+            os.remove('audio.mp4')
+
         else:
-            yt.streams.first().download()
+            yt.streams.get_highest_resolution().download()
     
     # Catching errs of download to show to the user
     # TODO: Refine the errors catching, age restriction, video unavailable, etc
+    except VideoUnavailable:
+        print(f"Video {url} is unavailable.")
     except Exception as err:
-        erro.append(err)
-
-    # All the donwloads above return a file with the mp4 extension
-    # This function will change the extension the mp3   
-    
-    # TODO: Refine the mp3 function
-    if mp3:
-        cext(".mp4", ".mp3")
-    
-    if erro:
-        print(erro)
-    else:
+        print(f"An error occurred: {err}")
+    finally:
         print("\nProcesso finalizado")
-
-    # Returning to the previous path after download
-    os.chdir(old_path)
-
-
-
-def print_progress(stream, chunk, bytes_remaining):
-    size = stream.filesize
-    percent = (100 * (size - bytes_remaining)) / size
-    print(f"Download Progress: {percent:.2f}%", end='\r')
-
-
-# Example usage    
-def main():
-    # Tratar as legendas se indisponivel
-    # Tratar age restriction error
-    path = r'C:\Users\Ruan\Desktop'
-    url = r'https://www.youtube.com/watch?v=V3OPDTwH9os'
-    downlaod_youtube(url, path)
-
-if __name__ == '__main__':
-    main()
+        os.chdir(old_path)
